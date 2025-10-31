@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: crashloop-test
+  namespace: default
+  labels:
+    app: test-crashloop
+spec:
+  containers:
+  - name: crashloop-container
+    image: busybox:latest
+    command: ["/bin/sh"]
+    args: ["-c", "echo 'Starting container...'; sleep 5; echo 'Exiting with error'; exit 1"]
+    resources:
+      limits:
+        cpu: "100m"
+        memory: "64Mi"
+      requests:
+        cpu: "50m"
+        memory: "32Mi"
+  restartPolicy: Always
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: imagepull-test
+  namespace: default
+  labels:
+    app: test-imagepull
+spec:
+  containers:
+  - name: imagepull-container
+    image: nonexistent/fake-image:latest
+    resources:
+      limits:
+        cpu: "100m"
+        memory: "64Mi"
+      requests:
+        cpu: "50m"
+        memory: "32Mi"
+  restartPolicy: Always
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: oom-test
+  namespace: default
+  labels:
+    app: test-oom
+spec:
+  containers:
+  - name: oom-container
+    image: busybox:latest
+    command: ["/bin/sh"]
+    args: ["-c", "echo 'Consuming memory...'; dd if=/dev/zero of=/tmp/memory.tmp bs=1M count=100; sleep 60"]
+    resources:
+      limits:
+        cpu: "100m"
+        memory: "64Mi"  # Very low memory limit to trigger OOM
+      requests:
+        cpu: "50m"
+        memory: "32Mi"
+  restartPolicy: Always
