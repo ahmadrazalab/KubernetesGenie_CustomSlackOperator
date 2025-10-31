@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: oom-test
+  namespace: default
+  labels:
+    app: test-oom
+spec:
+  containers:
+  - name: oom-container
+    image: busybox:latest
+    command: ["sh", "-c"]
+    args:
+    - |
+      echo "Starting memory allocation test..."
+      # Allocate memory that exceeds the limit to trigger OOMKilled
+      dd if=/dev/zero of=/dev/shm/fill bs=1024 count=200000
+      sleep 300
+    resources:
+      limits:
+        memory: "64Mi"
+        cpu: "100m"
+      requests:
+        memory: "32Mi" 
+        cpu: "50m"
+  restartPolicy: Always

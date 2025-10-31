@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: crashloop-test
+  namespace: default
+  labels:
+    app: test-crashloop
+spec:
+  containers:
+  - name: crashloop-container
+    image: busybox:latest
+    command: ["sh", "-c"]
+    args:
+    - |
+      echo "Starting container..."
+      echo "This container will crash in 5 seconds"
+      sleep 5
+      echo "Exiting with error code 1"
+      exit 1
+    resources:
+      limits:
+        memory: "64Mi"
+        cpu: "100m"
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+  restartPolicy: Always
